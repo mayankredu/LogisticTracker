@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FleetWatch — Management Console (Mockup)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --field:#14180F; --panel:#1B2114; --panel2:#232B19; --panel3:#2B3420;
+  --line:#39422B; --line2:#4A5638; --ink:#E9E5D3; --dim:#9BA183; --faint:#6A6F5C;
+  --ok:#8A9A5B; --warn:#D9A03B; --alert:#C2452F; --info:#7BA6A0;
+  --mono:"IBM Plex Mono",ui-monospace,monospace;
+  --sans:"IBM Plex Sans",system-ui,sans-serif;
+  --disp:"Saira Condensed",var(--sans);
+}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%}
+body{font-family:var(--sans);background:var(--field);color:var(--ink);font-size:14px}
+button{font-family:inherit;cursor:pointer}
+input,select{font-family:var(--sans)}
+a{color:var(--info)}
+
+/* ---------- login ---------- */
+.login{position:fixed;inset:0;display:grid;place-items:center;background:
+  radial-gradient(1200px 600px at 70% -10%, #1d2415, var(--field));z-index:50}
+.login .card{width:380px;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:30px}
+.login h1{font-family:var(--disp);font-size:34px;letter-spacing:.1em;text-transform:uppercase}
+.login h1 small{display:block;font-size:12px;letter-spacing:.32em;color:var(--dim)}
+.login p{color:var(--dim);font-size:12px;margin:10px 0 18px}
+.role-pick{display:flex;flex-direction:column;gap:10px}
+.role-pick button{display:flex;align-items:center;gap:12px;text-align:left;background:var(--panel2);
+  border:1px solid var(--line);border-radius:6px;padding:12px 14px;color:var(--ink)}
+.role-pick button:hover{border-color:var(--ok);background:var(--panel3)}
+.role-pick .rname{font-family:var(--disp);letter-spacing:.06em;font-size:16px}
+.role-pick .rmeta{color:var(--dim);font-size:11px}
+.role-pick .av{width:34px;height:34px;border-radius:6px;display:grid;place-items:center;
+  font-family:var(--mono);font-size:13px;background:var(--panel3);border:1px solid var(--line2)}
+
+/* ---------- shell ---------- */
+.shell{display:none;grid-template-columns:228px 1fr;grid-template-rows:54px 1fr;height:100vh}
+.shell.on{display:grid}
+header{grid-column:1/3;display:flex;align-items:center;gap:16px;padding:0 16px;
+  background:linear-gradient(180deg,#171c10,#14180f);border-bottom:1px solid var(--line)}
+.brand{font-family:var(--disp);font-weight:700;font-size:20px;letter-spacing:.14em;text-transform:uppercase}
+.brand small{display:block;font-size:10px;letter-spacing:.26em;color:var(--dim);line-height:.8}
+.topright{margin-left:auto;display:flex;align-items:center;gap:14px}
+.whoami{text-align:right;font-size:12px}
+.whoami b{font-family:var(--disp);letter-spacing:.04em;font-size:15px}
+.whoami span{color:var(--dim);display:block;font-size:11px}
+.rolechip{font-family:var(--mono);font-size:10px;letter-spacing:.1em;padding:3px 8px;border-radius:4px;
+  border:1px solid var(--line2);color:var(--dim)}
+.rolechip.SUPER{color:var(--warn);border-color:var(--warn)}
+.rolechip.ADMIN{color:var(--ok);border-color:var(--ok)}
+.rolechip.DRIVER{color:var(--info);border-color:var(--info)}
+.switch{background:var(--panel2);border:1px solid var(--line);color:var(--dim);border-radius:5px;padding:6px 10px;font-size:12px}
+.switch:hover{color:var(--ink)}
+
+nav{background:var(--panel);border-right:1px solid var(--line);padding:12px 8px;overflow-y:auto}
+nav .navlbl{font-family:var(--disp);font-size:10px;letter-spacing:.2em;color:var(--faint);
+  text-transform:uppercase;padding:14px 12px 6px}
+nav button{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:none;border:none;
+  color:var(--dim);padding:9px 12px;border-radius:6px;font-size:13px}
+nav button:hover{background:var(--panel2);color:var(--ink)}
+nav button.active{background:var(--panel3);color:var(--ink);box-shadow:inset 2px 0 0 var(--ok)}
+nav button .dot{margin-left:auto;font-family:var(--mono);font-size:10px;background:var(--alert);color:#fff;
+  border-radius:9px;padding:1px 6px;min-width:18px;text-align:center}
+nav .ico{width:16px;text-align:center;opacity:.8}
+
+main{overflow-y:auto;padding:22px 26px}
+.page-h{display:flex;align-items:flex-end;gap:14px;margin-bottom:18px}
+.page-h h2{font-family:var(--disp);font-size:26px;letter-spacing:.05em;text-transform:uppercase}
+.page-h p{color:var(--dim);font-size:12px;margin-bottom:3px}
+.scope{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--dim);
+  border:1px solid var(--line);padding:4px 10px;border-radius:5px}
+
+/* ---------- cards / metrics ---------- */
+.grid{display:grid;gap:14px}
+.metrics{grid-template-columns:repeat(auto-fit,minmax(160px,1fr));margin-bottom:18px}
+.metric{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:16px}
+.metric .v{font-family:var(--disp);font-size:34px;line-height:1}
+.metric .l{color:var(--dim);font-size:11px;letter-spacing:.08em;text-transform:uppercase;margin-top:6px}
+.metric.warn .v{color:var(--warn)} .metric.alert .v{color:var(--alert)} .metric.ok .v{color:var(--ok)}
+
+.card{background:var(--panel);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.card h3{font-family:var(--disp);font-size:14px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);
+  padding:12px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px}
+.card h3 .act{margin-left:auto}
+.card .body{padding:14px 16px}
+
+/* ---------- tables ---------- */
+table{width:100%;border-collapse:collapse}
+th{font-family:var(--mono);text-align:left;color:var(--faint);font-weight:400;font-size:11px;
+  letter-spacing:.06em;padding:9px 16px;border-bottom:1px solid var(--line);text-transform:uppercase}
+td{padding:10px 16px;border-bottom:1px solid rgba(57,66,43,.4);font-size:13px;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(35,43,25,.5)}
+td .mono,.mono{font-family:var(--mono)}
+.muted{color:var(--dim)}
+
+.badge{display:inline-block;font-family:var(--mono);font-size:10px;letter-spacing:.06em;padding:2px 7px;
+  border-radius:4px;border:1px solid var(--line2);color:var(--dim)}
+.badge.ACTIVE{color:var(--ok);border-color:var(--ok)}
+.badge.PENDING{color:var(--warn);border-color:var(--warn)}
+.badge.REJECTED,.badge.AUTO_REJECTED{color:var(--alert);border-color:var(--alert)}
+.badge.APPROVED{color:var(--ok);border-color:var(--ok)}
+.vt{display:inline-flex;align-items:center;gap:6px}
+.vt .em{font-size:15px}
+
+.btn{background:var(--ok);color:var(--field);border:none;border-radius:5px;padding:7px 13px;
+  font-family:var(--disp);letter-spacing:.06em;font-size:13px;text-transform:uppercase}
+.btn:hover{filter:brightness(1.08)}
+.btn.sm{padding:4px 9px;font-size:11px}
+.btn.ghost{background:var(--panel2);color:var(--ink);border:1px solid var(--line2)}
+.btn.danger{background:var(--alert);color:#fff}
+.btn.amber{background:var(--warn);color:var(--field)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btnrow{display:flex;gap:8px;flex-wrap:wrap}
+
+/* ---------- forms ---------- */
+.form{display:grid;gap:12px;max-width:520px}
+.form label{font-size:12px;color:var(--dim);display:block;margin-bottom:5px}
+.form input,.form select{width:100%;background:var(--field);border:1px solid var(--line2);color:var(--ink);
+  padding:9px 11px;border-radius:5px;font-size:13px}
+.form input:focus,.form select:focus{outline:2px solid var(--ok);outline-offset:-1px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.hint{color:var(--faint);font-size:11px;margin-top:4px}
+.empty{color:var(--faint);text-align:center;padding:30px;font-size:13px}
+
+/* expiry meter */
+.expiry{font-family:var(--mono);font-size:11px}
+.expiry.soon{color:var(--warn)} .expiry.gone{color:var(--alert)}
+.bar{height:4px;background:var(--line);border-radius:2px;overflow:hidden;margin-top:4px;width:120px}
+.bar i{display:block;height:100%;background:var(--ok)}
+.bar i.soon{background:var(--warn)} .bar i.gone{background:var(--alert)}
+
+/* ping interval control */
+.pingctl{display:flex;align-items:center;gap:10px}
+.pingctl input[type=range]{accent-color:var(--ok)}
+.pingval{font-family:var(--disp);font-size:20px;min-width:64px}
+
+/* ---------- modal ---------- */
+.modal-bg{position:fixed;inset:0;background:rgba(10,12,8,.72);display:none;place-items:center;z-index:60}
+.modal-bg.on{display:grid}
+.modal{width:440px;max-width:92vw;background:var(--panel);border:1px solid var(--line2);border-radius:8px}
+.modal h3{font-family:var(--disp);font-size:18px;letter-spacing:.06em;padding:16px;border-bottom:1px solid var(--line)}
+.modal .body{padding:16px}
+.modal .foot{padding:12px 16px;border-top:1px solid var(--line);display:flex;gap:8px;justify-content:flex-end}
+
+/* track / kml */
+.track{font-family:var(--mono);font-size:11px;color:var(--dim);max-height:220px;overflow:auto}
+.track div{padding:3px 0;border-bottom:1px solid rgba(57,66,43,.3)}
+
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--panel3);
+  border:1px solid var(--ok);color:var(--ink);padding:10px 18px;border-radius:6px;font-size:13px;
+  z-index:80;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.on{opacity:1}
+.note{background:var(--panel2);border:1px dashed var(--line2);border-radius:6px;padding:10px 12px;
+  color:var(--dim);font-size:12px;margin-top:14px}
+@media(max-width:820px){.shell.on{grid-template-columns:1fr}nav{display:none}}
+</style>
+</head>
+<body>
+
+<!-- ============ LOGIN ============ -->
+<div class="login" id="login">
+  <div class="card">
+    <h1>FleetWatch<small>Management Console</small></h1>
+    <p>Mockup — choose a role to explore. Data is in-memory and resets on reload.</p>
+    <div class="role-pick" id="rolePick"></div>
+  </div>
+</div>
+
+<!-- ============ SHELL ============ -->
+<div class="shell" id="shell">
+  <header>
+    <div class="brand">FleetWatch<small>MGMT CONSOLE · MOCKUP</small></div>
+    <div class="topright">
+      <div class="whoami" id="whoami"></div>
+      <button class="switch" onclick="logout()">Switch role</button>
+    </div>
+  </header>
+  <nav id="nav"></nav>
+  <main id="main"></main>
+</div>
+
+<div class="modal-bg" id="modalBg"><div class="modal" id="modal"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+// =================================================================
+//  In-memory data store
+// =================================================================
+const VEHICLE_TYPES = [
+  {k:"BIKE",label:"Bike",em:"🏍️"},{k:"CAR",label:"Car",em:"🚗"},
+  {k:"SMALL_TRUCK",label:"Small truck",em:"🚚"},{k:"BIG_TRUCK",label:"Big truck",em:"🚛"},
+  {k:"AMBULANCE",label:"Ambulance",em:"🚑"},{k:"TRACTOR",label:"Tractor",em:"🚜"}
+];
+const vt = k => VEHICLE_TYPES.find(t=>t.k===k) || {label:k,em:"❓"};
+const DAY = 86400000, MIN = 60000;
+const now = () => Date.now();
+let SEQ = 100;
+const id = p => p + (++SEQ);
+
+const DB = { groups:[], users:[], vehicles:[], requests:[], pings:[], session:null };
+
+function seed(){
+  // groups (ping interval 5–10 min, configurable)
+  DB.groups = [
+    {id:"GRP_A", name:"Group A — Northern Convoy", pingMin:5,  createdBy:"Super Admin"},
+    {id:"GRP_B", name:"Group B — Eastern Sector",  pingMin:10, createdBy:"Super Admin"},
+    {id:"GRP_C", name:"Group C — Mountain Logistics", pingMin:7, createdBy:"Maj. S. Iyer"},
+  ];
+  DB.users = [
+    {id:"U_SUPER", name:"Col. R. Mehta", role:"SUPER", mobile:"+919800000001", groupId:null, status:"ACTIVE", createdBy:"system"},
+    {id:"U_ADM_A", name:"Maj. S. Iyer", role:"ADMIN", mobile:"+919800000010", groupId:"GRP_A", status:"ACTIVE", createdBy:"Col. R. Mehta"},
+    {id:"U_ADM_B", name:"Capt. A. Khan", role:"ADMIN", mobile:"+919800000011", groupId:"GRP_B", status:"ACTIVE", createdBy:"Col. R. Mehta"},
+    // drivers
+    {id:"U_D1", name:"Hav. Bose",    role:"DRIVER", mobile:"+919876543201", groupId:"GRP_A", status:"ACTIVE",  createdBy:"Maj. S. Iyer", vehicleId:"V1"},
+    {id:"U_D2", name:"Nk. Pillai",   role:"DRIVER", mobile:"+919876543202", groupId:"GRP_A", status:"ACTIVE",  createdBy:"Maj. S. Iyer", vehicleId:"V2"},
+    {id:"U_D3", name:"Sep. Yadav",   role:"DRIVER", mobile:"+919876543203", groupId:"GRP_B", status:"ACTIVE",  createdBy:"Capt. A. Khan", vehicleId:"V3"},
+    {id:"U_D4", name:"Hav. Rana",    role:"DRIVER", mobile:"+919876543204", groupId:"GRP_B", status:"PENDING", createdBy:"Capt. A. Khan", vehicleId:"V4"}, // maker-checker queue
+    {id:"U_D5", name:"Nk. Fernandes",role:"DRIVER", mobile:"+919876543205", groupId:"GRP_C", status:"PENDING", createdBy:"Maj. S. Iyer"}, // awaiting validation
+  ];
+  DB.vehicles = [
+    {id:"V1", number:"AB-12-CD-3456", type:"BIG_TRUCK",   driverId:"U_D1"},
+    {id:"V2", number:"AB-12-CD-7788", type:"SMALL_TRUCK", driverId:"U_D2"},
+    {id:"V3", number:"EF-09-GH-1122", type:"AMBULANCE",   driverId:"U_D3"},
+    {id:"V4", number:"EF-09-GH-9090", type:"CAR",         driverId:"U_D4"},
+    {id:"V5", number:"IJ-22-KL-5555", type:"TRACTOR",     driverId:null},
+  ];
+  DB.requests = [
+    // pending group change — within the 7-day window
+    {id:"R_1", kind:"GROUP_CHANGE", driverId:"U_D2", fromGroup:"GRP_A", toGroup:"GRP_C",
+      status:"PENDING", reason:"Reassigned to mountain resupply", createdAt: now()-2*DAY, expiresAt: now()-2*DAY+7*DAY},
+    // pending but ALREADY expired -> demonstrates 7-day auto-reject sweep
+    {id:"R_2", kind:"GROUP_CHANGE", driverId:"U_D3", fromGroup:"GRP_B", toGroup:"GRP_A",
+      status:"PENDING", reason:"Requested transfer", createdAt: now()-8*DAY, expiresAt: now()-1*DAY},
+    // historical approved
+    {id:"R_3", kind:"GROUP_CHANGE", driverId:"U_D1", fromGroup:"GRP_B", toGroup:"GRP_A",
+      status:"APPROVED", reason:"Earlier transfer", createdAt: now()-20*DAY, expiresAt: now()-13*DAY, decidedBy:"Maj. S. Iyer"},
+  ];
+  // synthesise ping tracks (for avg speed + KML) for active drivers
+  seedTrack("U_D1", 32.72,74.85, 0.012, 5);
+  seedTrack("U_D2", 28.61,77.20, 0.008, 5);
+  seedTrack("U_D3", 26.14,91.73, 0.010, 10);
+}
+function seedTrack(driverId, lat, lon, step, pingMin){
+  let t = now() - 14*pingMin*MIN;
+  let plat=lat, plon=lon;
+  for(let i=0;i<14;i++){
+    const jlat = plat + step*(0.6+Math.random()*0.8);
+    const jlon = plon + step*(0.3+Math.random()*0.7);
+    const d = haversineKm(plat,plon,jlat,jlon);
+    const hrs = pingMin/60;
+    const speed = +(d/hrs).toFixed(1);
+    DB.pings.push({driverId, lat:+jlat.toFixed(5), lon:+jlon.toFixed(5), ts:t, speedKmh:speed, channel: i%4===0?"SMS":"APP"});
+    plat=jlat; plon=jlon; t += pingMin*MIN;
+  }
+}
+
+// =================================================================
+//  Helpers
+// =================================================================
+function haversineKm(a,b,c,d){const R=6371,r=x=>x*Math.PI/180;
+  const dp=r(c-a),dl=r(d-b);const s=Math.sin(dp/2)**2+Math.cos(r(a))*Math.cos(r(c))*Math.sin(dl/2)**2;
+  return 2*R*Math.asin(Math.sqrt(s));}
+const me = () => DB.users.find(u=>u.id===DB.session);
+const groupName = gid => (DB.groups.find(g=>g.id===gid)||{}).name || "—";
+const groupShort = gid => { const n=groupName(gid); return n.split("—")[0].trim(); };
+const driver = did => DB.users.find(u=>u.id===did);
+const vehicleOf = did => DB.vehicles.find(v=>v.driverId===did);
+const drivers = () => DB.users.filter(u=>u.role==="DRIVER");
+
+// role scoping: which groups can the current user see/act on
+function myGroups(){
+  const u=me();
+  if(u.role==="SUPER") return DB.groups.map(g=>g.id);
+  if(u.role==="ADMIN") return [u.groupId];
+  return [u.groupId];
+}
+const inScope = gid => myGroups().includes(gid);
+
+function avgSpeed(driverId){
+  const p = DB.pings.filter(x=>x.driverId===driverId).sort((a,b)=>a.ts-b.ts);
+  if(p.length<2) return null;
+  let dist=0; for(let i=1;i<p.length;i++) dist+=haversineKm(p[i-1].lat,p[i-1].lon,p[i].lat,p[i].lon);
+  const hrs=(p[p.length-1].ts-p[0].ts)/3600000;
+  return hrs>0 ? +(dist/hrs).toFixed(1) : null;
+}
+function groupAvgSpeed(gid){
+  const ds=drivers().filter(d=>d.groupId===gid && d.status==="ACTIVE");
+  const vals=ds.map(d=>avgSpeed(d.id)).filter(v=>v!=null);
+  return vals.length ? +(vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1) : null;
+}
+function fleetAvgSpeed(){
+  const gids=myGroups(); const vals=[];
+  drivers().filter(d=>gids.includes(d.groupId)&&d.status==="ACTIVE").forEach(d=>{const s=avgSpeed(d.id);if(s!=null)vals.push(s);});
+  return vals.length ? +(vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1) : null;
+}
+
+// auto-reject sweep: any PENDING request past expiry becomes AUTO_REJECTED
+function sweepExpired(){
+  let n=0;
+  DB.requests.forEach(r=>{ if(r.status==="PENDING" && now()>r.expiresAt){ r.status="AUTO_REJECTED"; r.decidedBy="system (7-day timeout)"; n++; }});
+  return n;
+}
+function expiryView(r){
+  const left=r.expiresAt-now();
+  const frac=Math.max(0,Math.min(1,left/(7*DAY)));
+  let cls=""; if(left<=0)cls="gone"; else if(left<2*DAY)cls="soon";
+  const label = left<=0 ? "expired" : Math.floor(left/DAY)+"d "+Math.floor((left%DAY)/3600000)+"h left";
+  return `<div class="expiry ${cls}">${label}</div><div class="bar"><i class="${cls}" style="width:${frac*100}%"></i></div>`;
+}
+
+// pending counts for nav badges
+function validationCount(){ return drivers().filter(d=>d.status==="PENDING"&&inScope(d.groupId)).length; }
+function requestCount(){ sweepExpired(); return DB.requests.filter(r=>r.status==="PENDING"&&inScope(r.toGroup||r.fromGroup)).length; }
+
+// =================================================================
+//  Auth
+// =================================================================
+const ROLE_INTRO = {
+  SUPER:["Col. R. Mehta","Full authority · validates new drivers · all groups"],
+  ADMIN:["Maj. S. Iyer","Group A · adds drivers (maker) · manages vehicles"],
+  DRIVER:["Hav. Bose","Group A · views own record · requests group change"]
+};
+function renderLogin(){
+  DB.session=null;
+  document.getElementById("shell").classList.remove("on");
+  document.getElementById("login").style.display="grid";
+  const map={SUPER:"U_SUPER",ADMIN:"U_ADM_A",DRIVER:"U_D1"};
+  document.getElementById("rolePick").innerHTML = Object.entries(ROLE_INTRO).map(([role,[name,desc]])=>`
+    <button onclick="loginAs('${map[role]}')">
+      <span class="av">${role[0]}</span>
+      <span><span class="rname">${role==="SUPER"?"Super Admin":role==="ADMIN"?"Admin":"User / Driver"}</span>
+      <span class="rmeta">${name} · ${desc}</span></span>
+    </button>`).join("");
+}
+function loginAs(uid){
+  DB.session=uid;
+  document.getElementById("login").style.display="none";
+  document.getElementById("shell").classList.add("on");
+  const u=me();
+  STATE.view = u.role==="DRIVER" ? "profile" : "dashboard";
+  render();
+}
+function logout(){ renderLogin(); }
+
+// =================================================================
+//  Navigation
+// =================================================================
+const NAV = {
+  SUPER:[
+    ["dashboard","◆","Dashboard"],["groups","▣","Groups"],["admins","✦","Admins"],
+    ["validations","✓","Validations","validationCount"],["requests","⇄","Group requests","requestCount"],
+    ["drivers","☰","Drivers"],["vehicles","⬗","Vehicles"],["pingcfg","⏱","Ping config"],["tracks","⊿","Tracks / KML"]
+  ],
+  ADMIN:[
+    ["dashboard","◆","Dashboard"],["drivers","☰","Drivers"],["vehicles","⬗","Vehicles"],
+    ["requests","⇄","Group requests","requestCount"],["pingcfg","⏱","Ping config"],["tracks","⊿","Tracks / KML"]
+  ],
+  DRIVER:[
+    ["profile","◎","My profile"],["mytrack","⊿","My track / KML"]
+  ]
+};
+const STATE={view:"dashboard"};
+function setView(v){STATE.view=v;render();}
+
+function render(){
+  sweepExpired();
+  const u=me(); if(!u)return;
+  document.getElementById("whoami").innerHTML =
+    `<b>${u.name}</b><span>${u.role==="DRIVER"?groupShort(u.groupId):u.role==="ADMIN"?groupShort(u.groupId):"All groups"}</span>`;
+  // nav
+  const counters={validationCount,requestCount};
+  document.getElementById("nav").innerHTML =
+    `<div class="navlbl">${u.role==="SUPER"?"Super Admin":u.role==="ADMIN"?"Admin":"Driver"}</div>` +
+    NAV[u.role].map(([v,ico,label,cnt])=>{
+      const n = cnt?counters[cnt]():0;
+      return `<button class="${STATE.view===v?'active':''}" onclick="setView('${v}')">
+        <span class="ico">${ico}</span>${label}${n>0?`<span class="dot">${n}</span>`:""}</button>`;
+    }).join("");
+  // page
+  const fn={dashboard:viewDashboard,groups:viewGroups,admins:viewAdmins,validations:viewValidations,
+    requests:viewRequests,drivers:viewDrivers,vehicles:viewVehicles,pingcfg:viewPingCfg,tracks:viewTracks,
+    profile:viewProfile,mytrack:viewMyTrack}[STATE.view]||viewDashboard;
+  document.getElementById("main").innerHTML = fn();
+}
+
+function pageH(title,sub){
+  const u=me();
+  const scope = u.role==="SUPER"?"SCOPE · ALL GROUPS":u.role==="ADMIN"?`SCOPE · ${groupShort(u.groupId)}`:`${groupShort(u.groupId)}`;
+  return `<div class="page-h"><div><p>${sub||""}</p><h2>${title}</h2></div><div class="scope">${scope}</div></div>`;
+}
+
+// =================================================================
+//  Views — Dashboard
+// =================================================================
+function viewDashboard(){
+  const gids=myGroups();
+  const ds=drivers().filter(d=>gids.includes(d.groupId));
+  const active=ds.filter(d=>d.status==="ACTIVE").length;
+  const pending=ds.filter(d=>d.status==="PENDING").length;
+  const openReq=DB.requests.filter(r=>r.status==="PENDING"&&inScope(r.toGroup||r.fromGroup)).length;
+  const fas=fleetAvgSpeed();
+  const m = [
+    ["ok",active,"Active drivers"],
+    ["warn",pending,"Awaiting validation"],
+    ["warn",openReq,"Open group requests"],
+    ["",fas==null?"—":fas+" <span style='font-size:14px'>km/h</span>","Avg speed (fleet)"],
+    ["",gids.length,"Groups in scope"],
+  ];
+  const groupRows = DB.groups.filter(g=>gids.includes(g.id)).map(g=>{
+    const gd=drivers().filter(d=>d.groupId===g.id);
+    const gs=groupAvgSpeed(g.id);
+    return `<tr><td><b>${g.name}</b></td>
+      <td class="mono">${gd.filter(d=>d.status==="ACTIVE").length} active</td>
+      <td class="mono">${g.pingMin} min</td>
+      <td class="mono">${gs==null?"—":gs+" km/h"}</td></tr>`;
+  }).join("");
+  const recent = DB.pings.filter(p=>{const d=driver(p.driverId);return d&&gids.includes(d.groupId);})
+    .sort((a,b)=>b.ts-a.ts).slice(0,8).map(p=>`<tr>
+      <td class="mono">${driver(p.driverId).name}</td>
+      <td class="mono">${p.lat}, ${p.lon}</td>
+      <td><span class="badge ${p.channel==='SMS'?'PENDING':'ACTIVE'}">${p.channel}</span></td>
+      <td class="mono">${p.speedKmh} km/h</td>
+      <td class="mono muted">${fmtTime(p.ts)}</td></tr>`).join("");
+  return pageH("Dashboard","Operational overview") +
+    `<div class="grid metrics">${m.map(([c,v,l])=>`<div class="metric ${c}"><div class="v">${v}</div><div class="l">${l}</div></div>`).join("")}</div>
+    <div class="grid" style="grid-template-columns:1fr 1fr">
+      <div class="card"><h3>Groups</h3><table>
+        <tr><th>Group</th><th>Drivers</th><th>Ping</th><th>Avg speed</th></tr>${groupRows}</table></div>
+      <div class="card"><h3>Recent pings</h3><table>
+        <tr><th>Driver</th><th>Position</th><th>Via</th><th>Speed</th><th>Time</th></tr>${recent}</table></div>
+    </div>
+    <div class="note">Average speed is computed from each driver's ping track (haversine distance ÷ elapsed time). Every ping — whether it arrives by app, SMS or manual entry — is also appended to that driver's KML track (see Tracks / KML).</div>`;
+}
+
+// =================================================================
+//  Groups (super admin + admin can create)
+// =================================================================
+function viewGroups(){
+  const rows=DB.groups.map(g=>{
+    const ad=DB.users.filter(u=>u.role==="ADMIN"&&u.groupId===g.id).map(u=>u.name).join(", ")||"—";
+    const dc=drivers().filter(d=>d.groupId===g.id).length;
+    return `<tr><td><b>${g.name}</b></td><td>${ad}</td><td class="mono">${dc}</td>
+      <td class="mono">${g.pingMin} min</td><td class="muted mono">${g.createdBy}</td></tr>`;
+  }).join("");
+  return pageH("Groups","Convoy / sector groupings") +
+    `<div class="card"><h3>All groups<span class="act"><button class="btn sm" onclick="modalNewGroup()">+ New group</button></span></h3>
+      <table><tr><th>Group</th><th>Admin(s)</th><th>Drivers</th><th>Ping interval</th><th>Created by</th></tr>${rows}</table></div>`;
+}
+function modalNewGroup(){
+  openModal("Create group",
+    `<div class="form">
+      <div><label>Group name</label><input id="gn" placeholder="Group D — Western Desert"></div>
+      <div><label>Ping interval (minutes, 5–10)</label><input id="gp" type="number" min="5" max="10" value="5"></div>
+    </div>`,
+    `<button class="btn ghost" onclick="closeModal()">Cancel</button><button class="btn" onclick="createGroup()">Create</button>`);
+}
+function createGroup(){
+  const name=val("gn").trim(); let p=+val("gp");
+  if(!name)return toast("Enter a group name");
+  p=Math.max(5,Math.min(10,p||5));
+  DB.groups.push({id:id("GRP_"),name,pingMin:p,createdBy:me().name});
+  closeModal();toast("Group created");render();
+}
+
+// =================================================================
+//  Admins (super admin only)
+// =================================================================
+function viewAdmins(){
+  const rows=DB.users.filter(u=>u.role==="ADMIN").map(u=>`<tr>
+    <td><b>${u.name}</b></td><td class="mono">${u.mobile}</td>
+    <td>${groupName(u.groupId)}</td><td><span class="badge ${u.status}">${u.status}</span></td></tr>`).join("");
+  return pageH("Admins","Group administrators") +
+    `<div class="card"><h3>Administrators<span class="act"><button class="btn sm" onclick="modalNewAdmin()">+ New admin</button></span></h3>
+      <table><tr><th>Name</th><th>Mobile</th><th>Group</th><th>Status</th></tr>${rows}</table></div>`;
+}
+function modalNewAdmin(){
+  openModal("Add admin",
+    `<div class="form">
+      <div><label>Name</label><input id="an" placeholder="Capt. P. Sharma"></div>
+      <div class="row2">
+        <div><label>Mobile number</label><input id="am" placeholder="+9198…"></div>
+        <div><label>Group</label><select id="ag">${DB.groups.map(g=>`<option value="${g.id}">${g.name}</option>`).join("")}</select></div>
+      </div></div>`,
+    `<button class="btn ghost" onclick="closeModal()">Cancel</button><button class="btn" onclick="createAdmin()">Add admin</button>`);
+}
+function createAdmin(){
+  const name=val("an").trim(),m=val("am").trim(),g=val("ag");
+  if(!name||!m)return toast("Name and mobile required");
+  DB.users.push({id:id("U_ADM_"),name,role:"ADMIN",mobile:m,groupId:g,status:"ACTIVE",createdBy:me().name});
+  closeModal();toast("Admin added");render();
+}
+
+// =================================================================
+//  Validations — maker-checker (super admin approves admin-added drivers)
+// =================================================================
+function viewValidations(){
+  const q=drivers().filter(d=>d.status==="PENDING"&&inScope(d.groupId));
+  const body = q.length? `<table><tr><th>Driver</th><th>Mobile</th><th>Group</th><th>Vehicle</th><th>Added by (maker)</th><th>Action</th></tr>`+
+    q.map(d=>{const v=vehicleOf(d.id);return `<tr>
+      <td><b>${d.name}</b></td><td class="mono">${d.mobile}</td><td>${groupName(d.groupId)}</td>
+      <td>${v?`<span class="vt"><span class="em">${vt(v.type).em}</span>${v.number}</span>`:'<span class="muted">none</span>'}</td>
+      <td class="muted">${d.createdBy}</td>
+      <td><div class="btnrow"><button class="btn sm" onclick="validateDriver('${d.id}',true)">Approve</button>
+      <button class="btn sm danger" onclick="validateDriver('${d.id}',false)">Reject</button></div></td></tr>`;}).join("")+`</table>`
+    : `<div class="empty">No drivers awaiting validation. New drivers added by admins appear here for super-admin sign-off.</div>`;
+  return pageH("Validations","Maker-checker — sign off new drivers") +
+    `<div class="card"><h3>Pending validation (${q.length})</h3>${body}</div>
+     <div class="note">Workflow: an <b>admin (maker)</b> registers a driver by mobile number into their group; the record stays <span class="badge PENDING">PENDING</span> until a <b>super admin (checker)</b> approves it here.</div>`;
+}
+function validateDriver(did,ok){
+  const d=driver(did); d.status=ok?"ACTIVE":"REJECTED";
+  toast(ok?`${d.name} validated`:`${d.name} rejected`);render();
+}
+
+// =================================================================
+//  Group-change requests (admin/super approve; 7-day auto-reject)
+// =================================================================
+function viewRequests(){
+  sweepExpired();
+  const visible=DB.requests.filter(r=>inScope(r.toGroup||r.fromGroup)||inScope(r.fromGroup));
+  const pend=visible.filter(r=>r.status==="PENDING");
+  const hist=visible.filter(r=>r.status!=="PENDING");
+  const prow=pend.map(r=>{const d=driver(r.driverId);return `<tr>
+    <td><b>${d.name}</b><div class="muted mono" style="font-size:11px">${d.mobile}</div></td>
+    <td>${groupShort(r.fromGroup)} → <b>${groupShort(r.toGroup)}</b></td>
+    <td class="muted">${r.reason||"—"}</td>
+    <td>${expiryView(r)}</td>
+    <td><div class="btnrow"><button class="btn sm" onclick="decide('${r.id}',true)">Approve</button>
+      <button class="btn sm danger" onclick="decide('${r.id}',false)">Reject</button></div></td></tr>`;}).join("");
+  const hrow=hist.map(r=>{const d=driver(r.driverId);return `<tr>
+    <td>${d?d.name:"—"}</td><td>${groupShort(r.fromGroup)} → ${groupShort(r.toGroup)}</td>
+    <td><span class="badge ${r.status}">${r.status.replace("_"," ")}</span></td>
+    <td class="muted mono">${r.decidedBy||"—"}</td></tr>`;}).join("");
+  return pageH("Group requests","Driver-initiated group changes") +
+    `<div class="card"><h3>Pending (${pend.length})</h3>${pend.length?
+      `<table><tr><th>Driver</th><th>Change</th><th>Reason</th><th>Auto-reject</th><th>Action</th></tr>${prow}</table>`
+      :`<div class="empty">No open requests.</div>`}</div>
+     <div class="card" style="margin-top:14px"><h3>History</h3>${hist.length?
+      `<table><tr><th>Driver</th><th>Change</th><th>Outcome</th><th>Decided by</th></tr>${hrow}</table>`
+      :`<div class="empty">No past requests.</div>`}</div>
+     <div class="note">A driver cannot change their own group. They raise a request (see the Driver view); an admin or super admin approves it here. Requests left undecided <b>auto-reject after 7 days</b> — the meter shows time remaining.</div>`;
+}
+function decide(rid,ok){
+  const r=DB.requests.find(x=>x.id===rid); if(!r||r.status!=="PENDING")return;
+  if(ok){ const d=driver(r.driverId); d.groupId=r.toGroup; r.status="APPROVED"; }
+  else r.status="REJECTED";
+  r.decidedBy=me().name;
+  toast(ok?"Request approved — driver moved":"Request rejected");render();
+}
+
+// =================================================================
+//  Drivers — admin adds (maker), by mobile, to a group
+// =================================================================
+function viewDrivers(){
+  const gids=myGroups();
+  const ds=drivers().filter(d=>gids.includes(d.groupId));
+  const rows=ds.map(d=>{const v=vehicleOf(d.id);return `<tr>
+    <td><b>${d.name}</b></td><td class="mono">${d.mobile}</td><td>${groupShort(d.groupId)}</td>
+    <td>${v?`<span class="vt"><span class="em">${vt(v.type).em}</span><span class="mono">${v.number}</span></span>`:'<span class="muted">unassigned</span>'}</td>
+    <td><span class="badge ${d.status}">${d.status}</span></td>
+    <td class="mono">${avgSpeed(d.id)==null?"—":avgSpeed(d.id)+" km/h"}</td></tr>`;}).join("");
+  return pageH("Drivers","Registered by mobile number") +
+    `<div class="card"><h3>Drivers in scope (${ds.length})<span class="act"><button class="btn sm" onclick="modalNewDriver()">+ Register driver</button></span></h3>
+      <table><tr><th>Name</th><th>Mobile</th><th>Group</th><th>Vehicle</th><th>Status</th><th>Avg speed</th></tr>${rows||""}</table>
+      ${ds.length?"":'<div class="empty">No drivers in your scope yet.</div>'}</div>
+     <div class="note">Registering a driver creates a <span class="badge PENDING">PENDING</span> record that a super admin must validate (maker-checker). A driver belongs to exactly one group and cannot move themselves.</div>`;
+}
+function modalNewDriver(){
+  const u=me();
+  const groupOpts = (u.role==="SUPER"?DB.groups:DB.groups.filter(g=>g.id===u.groupId))
+    .map(g=>`<option value="${g.id}">${g.name}</option>`).join("");
+  const freeVeh = DB.vehicles.filter(v=>!v.driverId);
+  openModal("Register driver",
+    `<div class="form">
+      <div><label>Name</label><input id="dn" placeholder="Sep. K. Das"></div>
+      <div class="row2">
+        <div><label>Mobile number (identity)</label><input id="dm" placeholder="+9198…"></div>
+        <div><label>Group</label><select id="dg">${groupOpts}</select></div>
+      </div>
+      <div><label>Assign vehicle (optional)</label>
+        <select id="dv"><option value="">— none —</option>
+        ${freeVeh.map(v=>`<option value="${v.id}">${vt(v.type).label} · ${v.number}</option>`).join("")}</select></div>
+      <div class="hint">Submitted as a maker entry → goes to super-admin validation.</div>
+    </div>`,
+    `<button class="btn ghost" onclick="closeModal()">Cancel</button><button class="btn" onclick="createDriver()">Submit for validation</button>`);
+}
+function createDriver(){
+  const name=val("dn").trim(),m=val("dm").trim(),g=val("dg"),v=val("dv");
+  if(!name||!m)return toast("Name and mobile required");
+  if(drivers().some(d=>d.mobile===m))return toast("A driver with that mobile already exists");
+  const did=id("U_D");
+  DB.users.push({id:did,name,role:"DRIVER",mobile:m,groupId:g,status:"PENDING",createdBy:me().name,vehicleId:v||null});
+  if(v){const veh=DB.vehicles.find(x=>x.id===v);if(veh)veh.driverId=did;}
+  closeModal();toast("Driver submitted for validation");render();
+}
+
+// =================================================================
+//  Vehicles — number + type
+// =================================================================
+function viewVehicles(){
+  const rows=DB.vehicles.map(v=>{const d=driver(v.driverId);return `<tr>
+    <td class="mono"><b>${v.number}</b></td>
+    <td><span class="vt"><span class="em">${vt(v.type).em}</span>${vt(v.type).label}</span></td>
+    <td>${d?d.name+' <span class="muted mono" style="font-size:11px">('+groupShort(d.groupId)+')</span>':'<span class="muted">unassigned</span>'}</td></tr>`;}).join("");
+  return pageH("Vehicles","Registry — number + type") +
+    `<div class="card"><h3>Vehicles<span class="act"><button class="btn sm" onclick="modalNewVehicle()">+ Register vehicle</button></span></h3>
+      <table><tr><th>Vehicle number</th><th>Type</th><th>Assigned driver</th></tr>${rows}</table></div>`;
+}
+function modalNewVehicle(){
+  openModal("Register vehicle",
+    `<div class="form">
+      <div><label>Vehicle number</label><input id="vn" placeholder="MN-01-OP-2345"></div>
+      <div><label>Vehicle type</label><select id="vty">${VEHICLE_TYPES.map(t=>`<option value="${t.k}">${t.em}  ${t.label}</option>`).join("")}</select></div>
+    </div>`,
+    `<button class="btn ghost" onclick="closeModal()">Cancel</button><button class="btn" onclick="createVehicle()">Register</button>`);
+}
+function createVehicle(){
+  const n=val("vn").trim().toUpperCase(),t=val("vty");
+  if(!n)return toast("Enter a vehicle number");
+  if(DB.vehicles.some(v=>v.number===n))return toast("That vehicle number already exists");
+  DB.vehicles.push({id:id("V"),number:n,type:t,driverId:null});
+  closeModal();toast("Vehicle registered");render();
+}
+
+// =================================================================
+//  Ping config — 5–10 min per group
+// =================================================================
+function viewPingCfg(){
+  const gids=myGroups();
+  const cards=DB.groups.filter(g=>gids.includes(g.id)).map(g=>`
+    <div class="card"><h3>${g.name}</h3><div class="body">
+      <div class="pingctl">
+        <input type="range" min="5" max="10" step="1" value="${g.pingMin}" oninput="previewPing('${g.id}',this.value)">
+        <span class="pingval" id="pv_${g.id}">${g.pingMin} min</span>
+        <button class="btn sm" onclick="savePing('${g.id}')">Save</button>
+      </div>
+      <div class="hint">Drivers in this group will be told to report every <span id="ph_${g.id}">${g.pingMin}</span> minutes.</div>
+    </div></div>`).join("");
+  return pageH("Ping config","Reporting interval per group (5–10 min)") +
+    `<div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(320px,1fr))">${cards}</div>
+     <div class="note">The interval is bounded to 5–10 minutes and is set per group by an admin (own group) or super admin (any group). The driver app reads this and times its pings accordingly; lengthening it directly lowers SMS-fallback cost.</div>`;
+}
+let pingDraft={};
+function previewPing(gid,v){pingDraft[gid]=+v;document.getElementById("pv_"+gid).textContent=v+" min";document.getElementById("ph_"+gid).textContent=v;}
+function savePing(gid){const g=DB.groups.find(x=>x.id===gid);g.pingMin=pingDraft[gid]??g.pingMin;toast("Ping interval saved: "+g.pingMin+" min");}
+
+// =================================================================
+//  Tracks / KML
+// =================================================================
+function viewTracks(){
+  const gids=myGroups();
+  const ds=drivers().filter(d=>gids.includes(d.groupId)&&DB.pings.some(p=>p.driverId===d.id));
+  const rows=ds.map(d=>{const pc=DB.pings.filter(p=>p.driverId===d.id).length;return `<tr>
+    <td><b>${d.name}</b> <span class="muted mono" style="font-size:11px">${groupShort(d.groupId)}</span></td>
+    <td class="mono">${pc} pings</td>
+    <td class="mono">${avgSpeed(d.id)} km/h</td>
+    <td><button class="btn sm ghost" onclick="downloadKML('${d.id}')">⬇ Download KML</button></td></tr>`;}).join("");
+  return pageH("Tracks / KML","GPS pings → KML track files") +
+    `<div class="card"><h3>Driver tracks</h3>${ds.length?
+      `<table><tr><th>Driver</th><th>Pings</th><th>Avg speed</th><th>KML</th></tr>${rows}</table>`
+      :`<div class="empty">No tracks yet.</div>`}</div>
+     <div class="note">Each GPS ping (received via app, SMS or manual entry) is appended to the driver's track. The KML contains a <span class="mono">LineString</span> of the route plus a timestamped <span class="mono">Placemark</span> per ping — openable in Google Earth, QGIS or any GIS viewer. In production the server writes/updates this KML on every ping.</div>`;
+}
+function buildKML(driverId){
+  const d=driver(driverId);
+  const pts=DB.pings.filter(p=>p.driverId===driverId).sort((a,b)=>a.ts-b.ts);
+  const coords=pts.map(p=>`${p.lon},${p.lat},0`).join(" ");
+  const marks=pts.map((p,i)=>`    <Placemark><name>Ping ${i+1}</name>
+      <TimeStamp><when>${new Date(p.ts).toISOString()}</when></TimeStamp>
+      <description>Speed ${p.speedKmh} km/h · via ${p.channel}</description>
+      <Point><coordinates>${p.lon},${p.lat},0</coordinates></Point></Placemark>`).join("\n");
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>${d.name} — ${groupShort(d.groupId)} track</name>
+    <Placemark><name>Route</name>
+      <LineString><tessellate>1</tessellate><coordinates>${coords}</coordinates></LineString>
+    </Placemark>
+${marks}
+  </Document>
+</kml>`;
+}
+function downloadKML(driverId){
+  const d=driver(driverId);
+  const blob=new Blob([buildKML(driverId)],{type:"application/vnd.google-earth.kml+xml"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download=`${d.name.replace(/\W+/g,"_")}_track.kml`;
+  a.click();URL.revokeObjectURL(a.href);
+  toast("KML generated");
+}
+
+// =================================================================
+//  Driver views
+// =================================================================
+function viewProfile(){
+  const u=me(); const v=vehicleOf(u.id);
+  const myReq=DB.requests.filter(r=>r.driverId===u.id).sort((a,b)=>b.createdAt-a.createdAt);
+  const reqRows=myReq.map(r=>`<tr><td>${groupShort(r.fromGroup)} → ${groupShort(r.toGroup)}</td>
+    <td><span class="badge ${r.status}">${r.status.replace("_"," ")}</span></td>
+    <td>${r.status==="PENDING"?expiryView(r):`<span class="muted mono">${r.decidedBy||""}</span>`}</td></tr>`).join("");
+  const hasPending=myReq.some(r=>r.status==="PENDING");
+  return pageH("My profile","Driver record") +
+    `<div class="grid" style="grid-template-columns:1fr 1fr">
+      <div class="card"><h3>Identity</h3><div class="body">
+        <table><tr><td class="muted">Name</td><td><b>${u.name}</b></td></tr>
+        <tr><td class="muted">Mobile</td><td class="mono">${u.mobile}</td></tr>
+        <tr><td class="muted">Status</td><td><span class="badge ${u.status}">${u.status}</span></td></tr>
+        <tr><td class="muted">Group</td><td><b>${groupName(u.groupId)}</b> <span class="muted">(locked)</span></td></tr>
+        <tr><td class="muted">Vehicle</td><td>${v?`<span class="vt"><span class="em">${vt(v.type).em}</span>${vt(v.type).label} · <span class="mono">${v.number}</span></span>`:'<span class="muted">unassigned</span>'}</td></tr>
+        <tr><td class="muted">Avg speed</td><td class="mono">${avgSpeed(u.id)==null?"—":avgSpeed(u.id)+" km/h"}</td></tr></table>
+        <div class="btnrow" style="margin-top:14px">
+          <button class="btn ${hasPending?'':'amber'}" ${hasPending?'disabled':''} onclick="modalRequestChange()">
+            ${hasPending?'Change request pending…':'Request group change'}</button></div>
+        <div class="hint" style="margin-top:8px">You can't change your own group. Submitting a request sends it to your admin for approval; it auto-rejects after 7 days.</div>
+      </div></div>
+      <div class="card"><h3>My change requests</h3>${myReq.length?
+        `<table><tr><th>Change</th><th>Status</th><th></th></tr>${reqRows}</table>`
+        :`<div class="empty">No requests yet.</div>`}</div>
+    </div>`;
+}
+function modalRequestChange(){
+  const u=me();
+  const opts=DB.groups.filter(g=>g.id!==u.groupId).map(g=>`<option value="${g.id}">${g.name}</option>`).join("");
+  openModal("Request group change",
+    `<div class="form">
+      <div><label>Current group</label><input value="${groupName(u.groupId)}" disabled></div>
+      <div><label>Requested group</label><select id="rg">${opts}</select></div>
+      <div><label>Reason</label><input id="rr" placeholder="e.g. reassigned to resupply route"></div>
+      <div class="hint">Goes to your admin / super admin. Auto-rejects after 7 days if not actioned.</div>
+    </div>`,
+    `<button class="btn ghost" onclick="closeModal()">Cancel</button><button class="btn amber" onclick="submitChange()">Submit request</button>`);
+}
+function submitChange(){
+  const u=me(),to=val("rg"),reason=val("rr").trim();
+  DB.requests.push({id:id("R_"),kind:"GROUP_CHANGE",driverId:u.id,fromGroup:u.groupId,toGroup:to,
+    status:"PENDING",reason:reason||"—",createdAt:now(),expiresAt:now()+7*DAY});
+  closeModal();toast("Request submitted — pending approval");render();
+}
+function viewMyTrack(){
+  const u=me();
+  const pts=DB.pings.filter(p=>p.driverId===u.id).sort((a,b)=>b.ts-a.ts);
+  const list=pts.length?pts.map(p=>`<div>${fmtTime(p.ts)} · ${p.lat}, ${p.lon} · ${p.speedKmh} km/h · ${p.channel}</div>`).join(""):'<div class="muted">No pings recorded.</div>';
+  return pageH("My track","Your recorded pings") +
+    `<div class="card"><h3>Track${pts.length?` <span class="act"><button class="btn sm ghost" onclick="downloadKML('${u.id}')">⬇ Download KML</button></span>`:""}</h3>
+      <div class="body"><div class="track">${list}</div></div></div>`;
+}
+
+// =================================================================
+//  Modal + toast + utils
+// =================================================================
+function openModal(title,body,foot){
+  document.getElementById("modal").innerHTML=`<h3>${title}</h3><div class="body">${body}</div><div class="foot">${foot}</div>`;
+  document.getElementById("modalBg").classList.add("on");
+}
+function closeModal(){document.getElementById("modalBg").classList.remove("on");}
+document.getElementById("modalBg").addEventListener("click",e=>{if(e.target.id==="modalBg")closeModal();});
+const val=id=>{const el=document.getElementById(id);return el?el.value:"";};
+let toastT;
+function toast(m){const t=document.getElementById("toast");t.textContent=m;t.classList.add("on");
+  clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove("on"),2200);}
+function fmtTime(ts){const d=new Date(ts);return d.toLocaleString([], {month:"short",day:"numeric",hour:"2-digit",minute:"2-digit"});}
+
+// boot
+seed(); renderLogin();
+</script>
+</body>
+</html>
